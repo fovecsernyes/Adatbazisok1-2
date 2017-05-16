@@ -1,3 +1,25 @@
+/* (select ... into)
+Írjunk meg egy függvényt, amelyik visszaadja egy adott fizetési kategóriába tartozó
+dolgozók átlagfizetését.
+*/
+CREATE OR REPLACE FUNCTION kat_atlag(n integer) RETURN number IS
+avg_fiz DOLG2.FIZETES%TYPE := null; 
+BEGIN
+    select avg(fizetes) into avg_fiz
+    from dolg2
+    where dkod in (
+    select dkod
+    from dolg2 d
+    join fizkat2 fk
+      on d.fizetes between fk.also and fk.felso
+    where kategoria = n
+  );
+  return(avg_fiz);
+END;
+/
+SELECT kat_atlag(4) FROM dual;
+---------------------------------------------------------------------
+
 CREATE OR REPLACE
 PROCEDURE proc9 IS
   TYPE Map_Dnev_To_Fiz IS
