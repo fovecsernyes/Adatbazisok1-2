@@ -151,6 +151,9 @@ túlcsordulást okoz, akkor erre a részre írja ki a kapott hibakódot. (SQLCOD
 */
 CREATE OR REPLACE
 PROCEDURE szamok(n number) IS
+
+not_pos EXCEPTION;
+
 begin
   declare begin
     dbms_output.put_line('reciproc: '|| (1/n));
@@ -163,11 +166,17 @@ begin
   declare
     fact integer := 1;
   begin
+  if n > 0 then
     for i in 2..n loop
       fact := fact * i;
     end loop;
     dbms_output.put_line('factorial: '|| fact);
-  exception when others then dbms_output.put_line('error: '||sqlcode);
+  else
+    RAISE not_pos;
+  end if;
+  exception
+            when others then dbms_output.put_line('error: '||sqlcode);
+            --sqlcode returns '1' for user definieted exceptions
   end;
 end;
 /
