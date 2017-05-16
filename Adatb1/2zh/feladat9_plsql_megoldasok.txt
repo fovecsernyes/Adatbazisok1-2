@@ -91,7 +91,7 @@ call kat_novel(2);
 /* (módosítás kurzorral)
 Írjunk meg egy procedúrát, amelyik módosítja a paraméterében megadott osztályon a fizetéseket, és
 kiírja a dolgozó nevét és új fizetését.  A módosítás mindenki fizetéséhez adjon hozzá n*10 ezret,
-ahol n a dolgozó nevében levő magánhangzók száma (a, e, i, o, u).
+ahol n a dolgozó nevében lev? magánhangzók száma (a, e, i, o, u).
 */
 CREATE OR REPLACE
 PROCEDURE fiz_mod(p_oazon INTEGER) IS
@@ -111,15 +111,22 @@ begin
 
     update dolg2
     set fizetes = fizetes
-                + 10000*length(REGEXP_REPLACE(currDnev, '[^aeiou]'))
+                + 10000 * ( length(currDnev) - length(replace(currDnev,'A',null))
+                            + length(currDnev) - length(replace(currDnev,'E',null))
+                            + length(currDnev) - length(replace(currDnev,'I',null))
+                            + length(currDnev) - length(replace(currDnev,'O',null))
+                            + length(currDnev) - length(replace(currDnev,'U',null)))
     where current of dolgCurs;
   end loop;
   close dolgCurs;
+  for curr in (select dnev, fizetes from dolg2 where oazon = p_oazon) loop
+    dbms_output.put_line('Dnev: '||curr.dnev||', fizetes: '||curr.fizetes);
+  end loop;
+  ROLLBACK;
 end;
 /
 set serveroutput on
-call fiz_mod(10);
--- select * from dolg2 where oazon = 10;
+call fiz_mod(20);
 
 
 /* (exception)
