@@ -30,23 +30,27 @@ nevét és belépési dátumát, akik a felhasználó által megadott osztályon
 A felhasználó az osztály nevének első betűjét adja meg (ACCEPT-tel kérjük be).
 A program írja ki az osztály nevét is. Ha nincs megfelelő osztály, akkor azt írja ki.
 */
-ACCEPT oazon_begin CHAR FORMAT '9' PROMPT 'Adja meg az osztály azonosító első betűjét:';
+set SERVEROUTPUT ON
+ACCEPT onev_begin PROMPT 'Adja meg az osztaly elso betujet:';
 declare
-  oazon_in oszt2.oazon%type := null;
-  osztNev  oszt2.onev%type;
+  onev_in OSZT2.ONEV%type := null;
+  oazon_in OSZT2.OAZON%type := null;
 begin
+  select onev into onev_in from oszt2
+  where ONEV LIKE '&onev_begin%';
+  dbms_output.put_line('Talalt osztaly: '||onev_in||'.');
+  
   select oazon into oazon_in from oszt2
-  where oazon LIKE &oazon_begin||'%';
+  where onev LIKE '&onev_begin%';
 
-  select onev into osztNev from oszt2 where oazon = oazon_in;
-  dbms_output.put_line('Talált osztály: '||osztNev||'.');
 
   for curr in (select dnev, belepes from dolg2 where oazon = oazon_in) loop
     dbms_output.put_line('Dnev: '||curr.dnev||', belepes: '||curr.belepes);
   end loop;
+  
 exception
   when NO_DATA_FOUND then
-    dbms_output.put_line('Nincs megfelelő osztály.');
+    dbms_output.put_line('nincs megfelelo osztaly.');
 end;
 /
 
